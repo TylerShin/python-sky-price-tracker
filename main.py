@@ -6,11 +6,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import datetime
 
-seed_date = "2018-07-24"
+seed_date = "2018-07-23"
 date_range = 3
 search_range_in_day = 61
+adult_count = 3
 start_airport = "ICN"
-end_airport = "CTS"
+end_airport = "NRT"
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36'}
@@ -23,16 +24,15 @@ options.add_argument('headless')
 options.add_argument('window-size=1920x1080')
 options.add_argument("disable-gpu")
 driver = webdriver.Chrome(executable_path="chromedriver.exe", chrome_options=options)
-driver.set_page_load_timeout(300)
+driver.set_page_load_timeout(3000)
 driver.implicitly_wait(3)
 
-
 def search_min_price(d1, d2):
-    path = "https://store.naver.com/flights/v2/results?trip=RT&scity1=%s&ecity1=%s&scity2=%s&ecity2=%s&adult=3&child=0&infant=0&sdate1=%s.&sdate2=%s.&fareType=Y" % (
-        start_airport, end_airport, end_airport, start_airport, d1, d2)
+    path = "https://store.naver.com/flights/v2/results?trip=RT&scity1=%s&ecity1=%s&scity2=%s&ecity2=%s&adult=%s&child=0&infant=0&sdate1=%s.&sdate2=%s.&fareType=Y" % (
+        start_airport, end_airport, end_airport, start_airport, adult_count, d1, d2)
     driver.get(path)
     try:
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 60).until(
             EC.visibility_of_any_elements_located((By.CLASS_NAME, "tit_apply"))
         )
         html = driver.page_source
@@ -47,7 +47,10 @@ def search_min_price(d1, d2):
         cur.execute(sql, (start_airport, end_airport, int(p), d1, d2))
         conn.commit()
     except Exception as e:
-        print(e)
+        if hasattr(e, 'message'):
+            print(e.message)
+        else:
+            print(e)
         driver.get_screenshot_as_file("./dst/fail.png")
 
 d1 = datetime.date.fromisoformat(seed_date)
