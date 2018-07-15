@@ -6,23 +6,30 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import datetime
 
+# Set trip options
 seed_date = "2018-07-23"
 date_range = 3
 search_range_in_day = 61
 adult_count = 3
 start_airport = "ICN"
-end_airport = "NRT"
+end_airport = "TAK"
 
-headers = {
-    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36'}
+# Set sqlite3
+# you should set DB path
+# ex) conn = sqlite3.connect("db/test.db")
 conn = sqlite3.connect("db/test.db")
 cur = conn.cursor()
 cur.execute(
     "CREATE TABLE IF NOT EXISTS trips (id integer PRIMARY KEY, start_airport text, end_airport text, price integer, start_date text, end_date text, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)")
+
+
+# Set Selenium Chrome Driver
+# please download chrome driver (http://chromedriver.chromium.org/downloads) and locate it wherever you want.
 options = webdriver.ChromeOptions()
 options.add_argument('headless')
 options.add_argument('window-size=1920x1080')
 options.add_argument("disable-gpu")
+# ex) driver = webdriver.Chrome(executable_path="chromedriver.exe", chrome_options=options)
 driver = webdriver.Chrome(executable_path="chromedriver.exe", chrome_options=options)
 driver.set_page_load_timeout(3000)
 driver.implicitly_wait(3)
